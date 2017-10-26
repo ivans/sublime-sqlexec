@@ -186,12 +186,29 @@ class sqlDesc(sublime_plugin.WindowCommand):
         else:
             sublime.error_message('No active connection')
 
+def index_first_startswith(the_list, substring):
+    for i, s in enumerate(the_list):
+        if s.startswith(substring):
+              return i
+    return -1
+
 class sqlShowRecords(sublime_plugin.WindowCommand):
+
     def run(self):
         global connection
         if connection != None:
             tables = connection.desc()
+            selection = "".join(Selection(self.window.active_view()).getQueries())
+
+            if len(selection) != 0:
+                print(selection)
+                idx = index_first_startswith(tables, selection)
+                if idx != -1:
+                    sublime.active_window().show_quick_panel(tables, showTableRecords, sublime.MONOSPACE_FONT, idx)
+                    return
+
             sublime.active_window().show_quick_panel(tables, showTableRecords)
+
         else:
             sublime.error_message('No active connection')
 
